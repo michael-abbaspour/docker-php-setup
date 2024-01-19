@@ -1,0 +1,15 @@
+# IDE and OS
+.idea
+.DS.Store
+README.md
+
+# Environment variables
+**/.env*
+!docker/.env
+
+# Secrets
+docker/mariadb/secrets/db_password-example.txt
+docker/mariadb/secrets/db_root_password-example.txt
+
+# Composer local dependencies
+vendor/

@@ -1,0 +1,67 @@
+name: docker-php-setup
+services:
+  php-fpm:
+    build:
+      target: development
+      args:
+        PHP_INI_FILE: ${PHP_INI_LOCAL_FILE?}
+    depends_on:
+      - mariadb
+    volumes:
+      - type: bind
+        source: ${APPLICATION_ROOT_RELATIVE_PATH}${APPLICATION_DIR}
+        target: ${APP_CODE_PATH}
+    networks:
+      - docker-php-net
+  nginx:
+    build:
+      target: development
+    ports:
+      - ${NGINX_HTTP_HOST_PORT:-80}:80
+    volumes:
+      - type: bind
+        source: ${APPLICATION_ROOT_RELATIVE_PATH}${APPLICATION_DIR}
+        target: ${APP_CODE_PATH}
+    depends_on:
+      - php-fpm
+    networks:
+      - docker-php-net
+  mariadb:
+    image: mariadb:${MARIADB_VERSION}
+    restart: always
+    expose:
+      - ${MARIADB_EXPOSED_PORT}
+    environment:
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD_FILE: /run/secrets/db_password
+      MARIADB_DATABASE: ${DB_NAME}
+    volumes:
+      - type: volume
+        source: db-data
+        target: /var/lib/mysql
+    secrets:
+      - db_root_password
+      - db_password
+    networks:
+      - docker-php-net
+  phpmyadmin:
+    image: phpmyadmin:${PHPMYADMIN_VERSION}
+    ports:
+      - ${PHPMYADMIN_PORT}:80
+    depends_on:
+      - ${DOCKER_SERVICE_NAME_MARIADB}
+    environment:
+      - PMA_HOST=${DOCKER_SERVICE_NAME_MARIADB}
+    networks:
+      - docker-php-net
+volumes:
+  db-data:
+secrets:
+  db_root_password:
+    file: mariadb/secrets/db_root_password.txt
+  db_password:
+    file: mariadb/secrets/db_password.txt
+networks:
+  docker-php-net:
+    driver: ${NETWORK_BRIDGE_DRIVER}

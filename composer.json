@@ -1,0 +1,18 @@
+{
+  "name": "michael-abbaspour/docker-php-setup",
+  "description": "description",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "michaelabbaspour",
+      "email": "email@example.com"
+    }
+  ],
+  "require": {
+    "vlucas/valitron": "^1.4"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.5.5"
+  }
+}

@@ -1,0 +1,29 @@
+name: docker-php-setup
+services:
+  php-fpm:
+    build:
+      context: ../
+      dockerfile: docker/php/fpm/Dockerfile
+      target: production
+      args:
+        PHP_VERSION: ${PHP_VERSION?}
+        PHP_FPM_ALPINE_VERSION: ${PHP_FPM_ALPINE_VERSION?}
+        COMPOSER_VERSION: ${COMPOSER_VERSION?}
+        APP_PHP_INI_DIR: ${APP_PHP_INI_DIR?}
+        HOST_PHP_INI_DIR: ${HOST_PHP_INI_DIR?}
+        PHP_INI_FILE: ${PHP_INI_PRODUCTION_FILE?}
+        APP_CODE_PATH: ${APP_CODE_PATH?}
+    restart: always
+  nginx:
+    build:
+      context: ../
+      dockerfile: docker/nginx/Dockerfile
+      target: production
+      args:
+        TARGET_NGINX_VERSION: ${NGINX_VERSION?}
+        APP_CODE_PATH: ${APP_CODE_PATH?}
+    restart: always
+    depends_on:
+      - php-fpm
+    ports:
+      - ${NGINX_HTTP_HOST_PORT:-80}:80
